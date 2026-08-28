@@ -14,9 +14,10 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
     WTF_CSRF_TIME_LIMIT = None
     FORCE_SECURE_COOKIES = os.environ.get("FORCE_SECURE_COOKIES", "false").lower() == "true"
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'samlovesbooks.db')}"
-    )
+    uri = os.environ.get("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'samlovesbooks.db')}")
+    if uri.startswith("postgresql://"):
+        uri = uri.replace("postgresql://", "postgresql+psycopg://", 1)
+    SQLALCHEMY_DATABASE_URI = uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Reading progress / font-size cookies
@@ -40,7 +41,7 @@ class DevConfig(Config):
 
 class ProdConfig(Config):
     DEBUG = False
-    SECRET_KEY = Config.SECRET_KEY
+    SECRET_KEY = _production_secret_key()
     FORCE_SECURE_COOKIES = True
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
