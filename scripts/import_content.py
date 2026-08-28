@@ -8,10 +8,10 @@ what need to change.
 """
 
 import argparse
+import ast
 import re
 from pathlib import Path
 
-import yaml
 from flask import url_for
 
 from app import create_app
@@ -19,10 +19,22 @@ from app.models import Chapter, Series, Story, db
 
 
 def parse_yaml(path):
-    with path.open(encoding="utf-8") as source:
-        data = yaml.safe_load(source) or {}
-    if not isinstance(data, dict):
-        raise ValueError("YAML root must be a mapping")
+    data = {}
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            raise ValueError(f"line {line_number} is not a key/value pair")
+        key, value = line.split(":", 1)
+        value = value.strip()
+        if not key.strip() or not value:
+            raise ValueError(f"line {line_number} has an empty key or value")
+        try:
+            parsed_value = ast.literal_eval(value)
+        except (SyntaxError, ValueError):
+            parsed_value = value
+        data[key.strip()] = parsed_value
     return data
 
 
