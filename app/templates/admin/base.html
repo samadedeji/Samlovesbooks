@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Admin — Samlovesbooks{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body font-md">
+  <header class="admin-header">
+    <div class="container-wide" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <a href="{{ url_for('admin.dashboard') }}"><strong>Samlovesbooks Admin</strong></a>
+        &nbsp;·&nbsp;
+        <a href="{{ url_for('admin.series_list') }}">Series</a>
+        &nbsp;·&nbsp;
+        <a href="{{ url_for('admin.stories_list') }}">Stories</a>
+        &nbsp;·&nbsp;
+        <a href="{{ url_for('reader.home') }}">View site</a>
+      </div>
+      <form action="{{ url_for('admin.logout') }}" method="post">
+        <button type="submit" class="link-button" style="color: var(--paper); text-decoration: underline;">Log out</button>
+      </form>
+    </div>
+  </header>
+  <main class="container-wide">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

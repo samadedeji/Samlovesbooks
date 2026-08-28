@@ -1,0 +1,24 @@
+<header class="site-header">
+  <div class="header-row">
+    <a class="site-title" href="{{ url_for('reader.home') }}">Samlovesbooks</a>
+
+    <nav class="font-size-control" aria-label="Text size">
+      {% for step, label in [("sm", "A-"), ("md", "A"), ("lg", "A+")] %}
+        <a href="{{ request.path }}?size={{ step }}"
+           class="{{ 'active' if font_size == step else '' }}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+
+    <div class="account-area">
+      {% if logged_in_user %}
+        <a href="{{ url_for('account.my_account') }}">{{ logged_in_user.display_name }}</a>
+        <form action="{{ url_for('account.logout') }}" method="post">
+          <button type="submit" class="link-button">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('account.login') }}">Log in</a>
+        <a href="{{ url_for('account.signup') }}">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+</header>

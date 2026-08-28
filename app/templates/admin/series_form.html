@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ "Edit" if series else "New" }} Series — Admin{% endblock %}
+{% block content %}
+  <h1 class="page-title">{{ "Edit Series" if series else "Create Series" }}</h1>
+  <form method="post" class="form-narrow" style="margin-left: 0;">
+    <div class="form-field">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="{{ series.title if series else '' }}" required>
+    </div>
+    <div class="form-field">
+      <label for="slug">Slug</label>
+      <input type="text" id="slug" name="slug" value="{{ series.slug if series else '' }}" placeholder="auto-suggested from title if left blank">
+    </div>
+    <div class="form-field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" style="min-height:120px;">{{ series.description if series else '' }}</textarea>
+    </div>
+    <div class="form-field">
+      <label for="cover_text">Cover text (short blurb)</label>
+      <input type="text" id="cover_text" name="cover_text" value="{{ series.cover_text if series else '' }}">
+    </div>
+    <button type="submit" class="btn">Save</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,11 @@
+<header class="site-header">
+  <div class="header-row">
+    <a class="site-title compact" href="{{ url_for('reader.home') }}">Samlovesbooks</a>
+    <nav class="font-size-control" aria-label="Text size">
+      {% for step, label in [("sm", "A-"), ("md", "A"), ("lg", "A+")] %}
+        <a href="{{ request.path }}?size={{ step }}"
+           class="{{ 'active' if font_size == step else '' }}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</header>

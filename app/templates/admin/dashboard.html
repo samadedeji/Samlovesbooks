@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard — Admin{% endblock %}
+{% block content %}
+  <h1 class="page-title">Dashboard</h1>
+
+  <div class="summary-counts">
+    <div class="count-box"><span class="n">{{ counts.series }}</span>Series</div>
+    <div class="count-box"><span class="n">{{ counts.stories }}</span>Stories</div>
+    <div class="count-box"><span class="n">{{ counts.published_chapters }}</span>Published chapters</div>
+    <div class="count-box"><span class="n">{{ counts.draft_chapters }}</span>Draft chapters</div>
+    <div class="count-box"><span class="n">{{ counts.readers }}</span>Reader accounts</div>
+  </div>
+
+  <p><a href="{{ url_for('admin.series_list') }}">Manage Series</a></p>
+
+  <h2 class="eyebrow">Recently edited chapters</h2>
+  {% if recent_chapters %}
+    <table class="admin-table">
+      <thead><tr><th>Chapter</th><th>Story</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+        {% for chapter in recent_chapters %}
+          <tr>
+            <td>Ch. {{ chapter.chapter_number }} — {{ chapter.title }}</td>
+            <td>{{ chapter.story.title }}</td>
+            <td>{{ "Published" if chapter.is_published else "Draft" }}</td>
+            <td>{{ chapter.updated_at.strftime("%Y-%m-%d %H:%M") if chapter.updated_at else "" }}</td>
+            <td><a href="{{ url_for('admin.chapter_edit', chapter_id=chapter.id) }}">Edit</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-state">No chapters yet.</p>
+  {% endif %}
+{% endblock %}

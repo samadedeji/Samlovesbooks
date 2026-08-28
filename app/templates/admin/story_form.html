@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ "Edit" if story else "New" }} Story — Admin{% endblock %}
+{% block content %}
+  <h1 class="page-title">{{ "Edit Story" if story else "Create Story" }}</h1>
+  <form method="post" class="form-narrow" style="margin-left: 0;">
+    <div class="form-field">
+      <label for="series_id">Series</label>
+      <select id="series_id" name="series_id">
+        <option value="">None / Standalone</option>
+        {% for s in all_series %}
+          {% set current_id = story.series_id if story else (preselect_series_id|int if preselect_series_id else None) %}
+          <option value="{{ s.id }}" {{ "selected" if current_id == s.id }}>{{ s.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="{{ story.title if story else '' }}" required>
+    </div>
+    <div class="form-field">
+      <label for="slug">Slug</label>
+      <input type="text" id="slug" name="slug" value="{{ story.slug if story else '' }}" placeholder="auto-suggested from title if left blank">
+    </div>
+    <div class="form-field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" style="min-height:120px;">{{ story.description if story else '' }}</textarea>
+    </div>
+    <div class="form-field">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        {% for opt in ["ongoing", "complete", "hiatus"] %}
+          <option value="{{ opt }}" {{ "selected" if story and story.status == opt }}>{{ opt }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="genre">Genre</label>
+      <input type="text" id="genre" name="genre" value="{{ story.genre if story else '' }}">
+    </div>
+    <div class="form-field">
+      <label for="order_index">Order index (within series/standalone group)</label>
+      <input type="number" id="order_index" name="order_index" value="{{ story.order_index if story else 0 }}">
+    </div>
+    <button type="submit" class="btn">Save</button>
+  </form>
+{% endblock %}

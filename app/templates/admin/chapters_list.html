@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Chapters — {{ story.title }} — Admin{% endblock %}
+{% block content %}
+  <h1 class="page-title">Chapters — {{ story.title }}</h1>
+  <p><a class="btn" href="{{ url_for('admin.chapter_new', story_id=story.id) }}">Create New Chapter</a></p>
+
+  {% if chapters %}
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Title</th><th>Status</th><th>Words</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+        {% for chapter in chapters %}
+          <tr>
+            <td>{{ chapter.chapter_number }}</td>
+            <td>{{ chapter.title }}</td>
+            <td>
+              <span class="badge {{ 'badge-ongoing' if chapter.is_published else 'badge-hiatus' }}">
+                {{ "Published" if chapter.is_published else "Draft" }}
+              </span>
+            </td>
+            <td>{{ chapter.word_count }}</td>
+            <td>{{ chapter.updated_at.strftime("%Y-%m-%d") if chapter.updated_at else "" }}</td>
+            <td>
+              <a href="{{ url_for('admin.chapter_edit', chapter_id=chapter.id) }}">Edit</a>
+              &nbsp;·&nbsp;
+              <form action="{{ url_for('admin.chapter_toggle_publish', story_id=story.id, chapter_id=chapter.id) }}" method="post" style="display:inline;">
+                <button type="submit" class="link-button" style="color: var(--library-green); text-decoration: underline; background:none; border:none; cursor:pointer;">
+                  {{ "Unpublish" if chapter.is_published else "Publish" }}
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-state">No chapters yet.</p>
+  {% endif %}
+{% endblock %}

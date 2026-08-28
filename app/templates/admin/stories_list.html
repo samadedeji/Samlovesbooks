@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Manage Stories — Admin{% endblock %}
+{% block content %}
+  <h1 class="page-title">Manage Stories</h1>
+
+  <div class="admin-filter-bar">
+    <a href="{{ url_for('admin.stories_list') }}" class="{{ 'active' if not series_id }}">All</a>
+    {% for s in all_series %}
+      <a href="{{ url_for('admin.stories_list', series_id=s.id) }}" class="{{ 'active' if series_id == s.id|string }}">{{ s.title }}</a>
+    {% endfor %}
+    <a href="{{ url_for('admin.stories_list', series_id='none') }}" class="{{ 'active' if series_id == 'none' }}">Standalone</a>
+  </div>
+
+  <p><a class="btn" href="{{ url_for('admin.story_new', series_id=series_id if series_id else '') }}">Create New Story</a></p>
+
+  {% if stories %}
+    <table class="admin-table">
+      <thead><tr><th>Title</th><th>Series</th><th>Status</th><th>Chapters</th><th></th></tr></thead>
+      <tbody>
+        {% for story in stories %}
+          <tr>
+            <td>{{ story.title }}</td>
+            <td>{{ story.series.title if story.series else "Standalone" }}</td>
+            <td>{{ story.status }}</td>
+            <td>{{ story.chapters|length }}</td>
+            <td>
+              <a href="{{ url_for('admin.story_edit', story_id=story.id) }}">Edit</a>
+              &nbsp;·&nbsp;
+              <a href="{{ url_for('admin.chapters_list', story_id=story.id) }}">Manage Chapters</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-state">No stories in this view yet.</p>
+  {% endif %}
+{% endblock %}

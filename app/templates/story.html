@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ story.title }} — Samlovesbooks{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ url_for('reader.home') }}">Home</a>
+    <span class="sep">/</span>
+    {% if story.series %}
+      <a href="{{ url_for('reader.series_page', series_slug=story.series.slug) }}">{{ story.series.title }}</a>
+      <span class="sep">/</span>
+    {% endif %}
+    <span class="current">{{ story.title }}</span>
+  </nav>
+
+  <h1 class="page-title">{{ story.title }}</h1>
+  <p>
+    <span class="badge badge-{{ story.status }}">{{ story.status }}</span>
+    {% if story.genre %}<span class="item-meta">{{ story.genre|upper }}</span>{% endif %}
+  </p>
+  {% if story.description %}<p>{{ story.description }}</p>{% endif %}
+
+  <p>
+    {% if last_read_chapter_number %}
+      {% set resume_chapter = chapters|selectattr('chapter_number', 'equalto', last_read_chapter_number)|first %}
+      <a class="btn" href="{{ chapter_url(story, resume_chapter) }}">Continue Reading</a>
+      <span class="stamp">LAST READ · CH {{ last_read_chapter_number }}</span>
+    {% else %}
+      <a class="btn" href="{{ chapter_url(story, chapters[0]) }}">Start Reading</a>
+      <span class="stamp">NEW</span>
+    {% endif %}
+  </p>
+
+  <h2 class="eyebrow">Chapters</h2>
+  <ul class="item-list">
+    {% for chapter in chapters %}
+      <li>
+        <div class="item-title">
+          <a href="{{ chapter_url(story, chapter) }}">Ch. {{ chapter.chapter_number }}{% if chapter.title %} — {{ chapter.title }}{% endif %}</a>
+        </div>
+        <div class="item-meta">{{ chapter.word_count }} WORDS</div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

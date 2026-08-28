@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ chapter.title or ('Chapter ' ~ chapter.chapter_number) }} — {{ story.title }}{% endblock %}
+{% block header %}{% include "partials/header_chapter.html" %}{% endblock %}
+
+{% block content %}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ story_url(story) }}">{{ story.title }}</a>
+  </nav>
+
+  <div>
+    <span class="stamp stamp-position">CH {{ chapter.chapter_number }} / {{ total_chapters }}</span>
+  </div>
+
+  <h1 class="chapter-title">{{ chapter.title or ('Chapter ' ~ chapter.chapter_number) }}</h1>
+
+  <div class="chapter-body">
+    {{ chapter.content|markdown|safe }}
+  </div>
+
+  <nav class="chapter-nav">
+    <span>
+      {% if prev_chapter %}
+        <a href="{{ chapter_url(story, prev_chapter) }}">&larr; Previous Chapter</a>
+      {% else %}
+        <span class="disabled">&larr; Previous Chapter</span>
+      {% endif %}
+    </span>
+    <span><a href="{{ story_url(story) }}">Table of Contents</a></span>
+    <span>
+      {% if next_chapter %}
+        <a href="{{ chapter_url(story, next_chapter) }}">Next Chapter &rarr;</a>
+      {% else %}
+        <span class="disabled">Next Chapter &rarr;</span>
+      {% endif %}
+    </span>
+  </nav>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Samlovesbooks — read serialized fiction & personal narratives{% endblock %}
+
+{% block content %}
+  <p class="item-desc">Stories worth keeping a record of.</p>
+
+  {% if series_list %}
+    <section>
+      <h2 class="eyebrow">Series</h2>
+      <ul class="item-list">
+        {% for series in series_list %}
+          <li>
+            <div class="item-title">
+              <a href="{{ url_for('reader.series_page', series_slug=series.slug) }}">{{ series.title }}</a>
+            </div>
+            {% if series.cover_text %}<div class="item-desc">{{ series.cover_text }}</div>{% endif %}
+            <div class="item-meta">{{ series.stories|length }} STOR{{ 'Y' if series.stories|length == 1 else 'IES' }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if standalone_stories %}
+    <section>
+      <h2 class="eyebrow">Standalone Stories</h2>
+      <ul class="item-list">
+        {% for story in standalone_stories %}
+          <li>
+            <div class="item-title">
+              <a href="{{ story_url(story) }}">{{ story.title }}</a>
+            </div>
+            {% if story.description %}<div class="item-desc">{{ story.description }}</div>{% endif %}
+            <div class="item-meta">
+              {% if story.genre %}{{ story.genre|upper }} · {% endif %}
+              <span class="badge badge-{{ story.status }}">{{ story.status }}</span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if not series_list and not standalone_stories %}
+    <p class="empty-state">Nothing published yet.</p>
+  {% endif %}
+
+  <p><a href="{{ url_for('reader.browse') }}">See all stories</a></p>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My Account — Samlovesbooks{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Hi, {{ user.display_name }}</h1>
+
+  <h2 class="eyebrow">Continue Reading</h2>
+  {% if progress_rows %}
+    <ul class="item-list">
+      {% for row in progress_rows %}
+        <li>
+          <div class="item-title">
+            <a href="{{ chapter_url(row.story, row.chapter) }}">{{ row.story.title }} — Chapter {{ row.chapter.chapter_number }}</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty-state">You haven't started a story yet. <a href="{{ url_for('reader.browse') }}">Browse stories</a>.</p>
+  {% endif %}
+
+  <form action="{{ url_for('account.logout') }}" method="post" style="margin-top: var(--space-6);">
+    <button type="submit" class="btn">Log out</button>
+  </form>
+{% endblock %}
