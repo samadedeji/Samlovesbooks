@@ -1,0 +1,29 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://127.0.0.1:5000/",
+        "http://127.0.0.1:5000/series/57-and-unbothered",
+        "http://127.0.0.1:5000/story/rebel",
+        "http://127.0.0.1:5000/story/rebel/chapter-1"
+      ],
+      "settings": {
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 300,
+          "throughputKbps": 400,
+          "requestLatencyMs": 300,
+          "downloadThroughputKbps": 400,
+          "uploadThroughputKbps": 400,
+          "cpuSlowdownMultiplier": 4
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "first-contentful-paint": ["error", { "maxNumericValue": 2000 }],
+        "interactive": ["error", { "maxNumericValue": 2000 }]
+      }
+    }
+  }
+}

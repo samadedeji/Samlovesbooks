@@ -6,17 +6,23 @@
 
   {% if series_list %}
     <table class="admin-table">
-      <thead><tr><th>Title</th><th>Stories</th><th>Created</th><th></th></tr></thead>
+      <thead><tr><th>Title</th><th>Stories</th><th>Status</th><th>Created</th><th></th></tr></thead>
       <tbody>
         {% for series in series_list %}
-          <tr>
+          <tr class="{{ 'muted' if series.is_archived else '' }}">
             <td>{{ series.title }}</td>
             <td>{{ series.stories|length }}</td>
+            <td>{{ "Archived" if series.is_archived else "Active" }}</td>
             <td>{{ series.created_at.strftime("%Y-%m-%d") if series.created_at else "" }}</td>
             <td>
               <a href="{{ url_for('admin.series_edit', series_id=series.id) }}">Edit</a>
               &nbsp;·&nbsp;
               <a href="{{ url_for('admin.stories_list', series_id=series.id) }}">View Stories</a>
+              &nbsp;·&nbsp;
+              <form action="{{ url_for('admin.series_archive_action', series_id=series.id, action='unarchive' if series.is_archived else 'archive') }}" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="link-button">{{ "Unarchive" if series.is_archived else "Archive" }}</button>
+              </form>
             </td>
           </tr>
         {% endfor %}

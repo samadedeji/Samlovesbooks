@@ -13,6 +13,7 @@
       {% if logged_in_user %}
         <a href="{{ url_for('account.my_account') }}">{{ logged_in_user.display_name }}</a>
         <form action="{{ url_for('account.logout') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="link-button">Log out</button>
         </form>
       {% else %}

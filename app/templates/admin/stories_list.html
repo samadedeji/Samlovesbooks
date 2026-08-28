@@ -15,18 +15,24 @@
 
   {% if stories %}
     <table class="admin-table">
-      <thead><tr><th>Title</th><th>Series</th><th>Status</th><th>Chapters</th><th></th></tr></thead>
+      <thead><tr><th>Title</th><th>Series</th><th>Status</th><th>Archive</th><th>Chapters</th><th></th></tr></thead>
       <tbody>
         {% for story in stories %}
-          <tr>
+          <tr class="{{ 'muted' if story.is_archived else '' }}">
             <td>{{ story.title }}</td>
             <td>{{ story.series.title if story.series else "Standalone" }}</td>
             <td>{{ story.status }}</td>
+            <td>{{ "Archived" if story.is_archived else "Active" }}</td>
             <td>{{ story.chapters|length }}</td>
             <td>
               <a href="{{ url_for('admin.story_edit', story_id=story.id) }}">Edit</a>
               &nbsp;·&nbsp;
               <a href="{{ url_for('admin.chapters_list', story_id=story.id) }}">Manage Chapters</a>
+              &nbsp;·&nbsp;
+              <form action="{{ url_for('admin.story_archive_action', story_id=story.id, action='unarchive' if story.is_archived else 'archive') }}" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="link-button">{{ "Unarchive" if story.is_archived else "Archive" }}</button>
+              </form>
             </td>
           </tr>
         {% endfor %}

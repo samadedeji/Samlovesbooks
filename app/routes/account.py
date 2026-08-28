@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
+from .. import limiter
 from ..models import ReadingProgress, User, db
 from ..utils import (
     current_user,
@@ -14,6 +15,7 @@ account_bp = Blueprint("account", __name__, url_prefix="/account")
 
 
 @account_bp.route("/signup", methods=["GET", "POST"])
+@limiter.limit("10 per hour", methods=["POST"])
 def signup():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -45,6 +47,7 @@ def signup():
 
 
 @account_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()

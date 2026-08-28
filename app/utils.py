@@ -1,7 +1,18 @@
 import secrets
+from contextlib import contextmanager
 from functools import wraps
 
 from flask import current_app, g, redirect, request, session, url_for
+from sqlalchemy.exc import IntegrityError
+
+
+@contextmanager
+def catch_integrity_error(db_session):
+    try:
+        yield
+    except IntegrityError:
+        db_session.rollback()
+        raise
 
 
 # ---------------------------------------------------------------------------
@@ -25,7 +36,8 @@ def persist_font_size_cookie(response):
     param = request.args.get("size")
     if param in cfg["FONT_SIZE_CHOICES"]:
         response.set_cookie(
-            cfg["FONT_SIZE_COOKIE"], param, max_age=60 * 60 * 24 * 365, samesite="Lax"
+            cfg["FONT_SIZE_COOKIE"], param, max_age=60 * 60 * 24 * 365,
+            samesite="Lax", secure=cfg["FORCE_SECURE_COOKIES"]
         )
     return response
 
@@ -55,6 +67,7 @@ def ensure_reader_token_cookie(response):
             max_age=60 * 60 * 24 * 365 * 2,
             httponly=True,
             samesite="Lax",
+            secure=cfg["FORCE_SECURE_COOKIES"],
         )
     return response
 
@@ -153,6 +166,7 @@ def finalize_reader_token_cookie(response):
             max_age=60 * 60 * 24 * 365 * 2,
             httponly=True,
             samesite="Lax",
+            secure=cfg["FORCE_SECURE_COOKIES"],
         )
     return response
 

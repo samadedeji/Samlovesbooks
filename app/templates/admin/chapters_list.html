@@ -23,6 +23,7 @@
               <a href="{{ url_for('admin.chapter_edit', chapter_id=chapter.id) }}">Edit</a>
               &nbsp;·&nbsp;
               <form action="{{ url_for('admin.chapter_toggle_publish', story_id=story.id, chapter_id=chapter.id) }}" method="post" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="link-button" style="color: var(--library-green); text-decoration: underline; background:none; border:none; cursor:pointer;">
                   {{ "Unpublish" if chapter.is_published else "Publish" }}
                 </button>

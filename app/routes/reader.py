@@ -1,5 +1,6 @@
-from flask import Blueprint, abort, render_template, request
+from flask import Blueprint, abort, make_response, render_template, request
 
+from .. import cache
 from ..models import Chapter, ReadingProgress, Series, Story
 from ..utils import current_user, get_reader_token, record_progress
 
@@ -11,16 +12,19 @@ def _published_stories_query():
     return (
         Story.query.join(Chapter)
         .filter(Chapter.is_published.is_(True))
+        .filter(Story.is_archived.is_(False))
         .distinct()
     )
 
 
 @reader_bp.route("/")
+@cache.cached(timeout=300)
 def home():
     all_series = (
         Series.query.join(Story)
         .join(Chapter)
         .filter(Chapter.is_published.is_(True))
+        .filter(Series.is_archived.is_(False))
         .distinct()
         .order_by(Series.title)
         .all()
@@ -37,8 +41,9 @@ def home():
 
 
 @reader_bp.route("/series/<series_slug>")
+@cache.cached(timeout=300, query_string=True)
 def series_page(series_slug):
-    series = Series.query.filter_by(slug=series_slug).first_or_404()
+    series = Series.query.filter_by(slug=series_slug, is_archived=False).first_or_404()
     stories = (
         _published_stories_query()
         .filter(Story.series_id == series.id)
@@ -86,15 +91,21 @@ def _render_story_page(story):
 
 
 @reader_bp.route("/story/<story_slug>")
+@cache.cached(timeout=300, query_string=True)
 def story_page_standalone(story_slug):
-    story = Story.query.filter_by(slug=story_slug, series_id=None).first_or_404()
+    story = Story.query.filter_by(
+        slug=story_slug, series_id=None, is_archived=False
+    ).first_or_404()
     return _render_story_page(story)
 
 
 @reader_bp.route("/series/<series_slug>/<story_slug>")
+@cache.cached(timeout=300, query_string=True)
 def story_page_series(series_slug, story_slug):
-    series = Series.query.filter_by(slug=series_slug).first_or_404()
-    story = Story.query.filter_by(slug=story_slug, series_id=series.id).first_or_404()
+    series = Series.query.filter_by(slug=series_slug, is_archived=False).first_or_404()
+    story = Story.query.filter_by(
+        slug=story_slug, series_id=series.id, is_archived=False
+    ).first_or_404()
     return _render_story_page(story)
 
 
@@ -128,30 +139,37 @@ def _render_chapter(story, chapter_slug):
     # Side effect: record reading progress for this visitor (anon or logged in)
     record_progress(story.id, chapter.id)
 
-    return render_template(
+    response = make_response(render_template(
         "chapter.html",
         story=story,
         chapter=chapter,
         prev_chapter=prev_chapter,
         next_chapter=next_chapter,
         total_chapters=total_chapters,
-    )
+    ))
+    response.headers["Cache-Control"] = "public, max-age=600"
+    return response
 
 
 @reader_bp.route("/story/<story_slug>/<chapter_slug>")
 def chapter_standalone(story_slug, chapter_slug):
-    story = Story.query.filter_by(slug=story_slug, series_id=None).first_or_404()
+    story = Story.query.filter_by(
+        slug=story_slug, series_id=None, is_archived=False
+    ).first_or_404()
     return _render_chapter(story, chapter_slug)
 
 
 @reader_bp.route("/series/<series_slug>/<story_slug>/<chapter_slug>")
 def chapter_series(series_slug, story_slug, chapter_slug):
-    series = Series.query.filter_by(slug=series_slug).first_or_404()
-    story = Story.query.filter_by(slug=story_slug, series_id=series.id).first_or_404()
+    series = Series.query.filter_by(slug=series_slug, is_archived=False).first_or_404()
+    story = Story.query.filter_by(
+        slug=story_slug, series_id=series.id, is_archived=False
+    ).first_or_404()
     return _render_chapter(story, chapter_slug)
 
 
 @reader_bp.route("/browse")
+@cache.cached(timeout=120, query_string=True)
 def browse():
     q = request.args.get("q", "").strip()
     query = _published_stories_query()

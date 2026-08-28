@@ -33,8 +33,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-python seed.py        # creates samlovesbooks.db with an admin user (leo/changeme)
-                       # and a couple of sample stories
+flask db upgrade     # apply database migrations
+python seed.py       # optional, for local sample data
 python run.py          # http://127.0.0.1:5000
 ```
 

@@ -3,21 +3,23 @@
 {% block content %}
   <h1 class="page-title">{{ "Edit Series" if series else "Create Series" }}</h1>
   <form method="post" class="form-narrow" style="margin-left: 0;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
     <div class="form-field">
       <label for="title">Title</label>
-      <input type="text" id="title" name="title" value="{{ series.title if series else '' }}" required>
+      <input type="text" id="title" name="title" value="{{ form_data.get('title', series.title if series else '') }}" required>
     </div>
     <div class="form-field">
       <label for="slug">Slug</label>
-      <input type="text" id="slug" name="slug" value="{{ series.slug if series else '' }}" placeholder="auto-suggested from title if left blank">
+      <input type="text" id="slug" name="slug" value="{{ form_data.get('slug', series.slug if series else '') }}" placeholder="auto-suggested from title if left blank">
     </div>
     <div class="form-field">
       <label for="description">Description</label>
-      <textarea id="description" name="description" style="min-height:120px;">{{ series.description if series else '' }}</textarea>
+      <textarea id="description" name="description" style="min-height:120px;">{{ form_data.get('description', series.description if series else '') }}</textarea>
     </div>
     <div class="form-field">
       <label for="cover_text">Cover text (short blurb)</label>
-      <input type="text" id="cover_text" name="cover_text" value="{{ series.cover_text if series else '' }}">
+      <input type="text" id="cover_text" name="cover_text" value="{{ form_data.get('cover_text', series.cover_text if series else '') }}">
     </div>
     <button type="submit" class="btn">Save</button>
   </form>

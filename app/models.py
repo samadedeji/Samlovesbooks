@@ -22,6 +22,7 @@ class Series(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     cover_text = db.Column(db.String(500))  # short blurb, no heavy images needed
+    is_archived = db.Column(db.Boolean, default=False, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     stories = db.relationship(
@@ -48,6 +49,7 @@ class Story(db.Model):
     genre = db.Column(db.String(50))  # e.g. horror, personal-narrative, fiction
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_archived = db.Column(db.Boolean, default=False, nullable=False, index=True)
 
     series = db.relationship("Series", back_populates="stories")
     chapters = db.relationship(

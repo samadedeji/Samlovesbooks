@@ -3,10 +3,12 @@
 {% block content %}
   <h1 class="page-title">{{ "Edit Chapter" if chapter else "Create Chapter" }}</h1>
   <form method="post" style="max-width: 900px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
     <div class="form-field">
       <label for="story_id">Story</label>
       <select id="story_id" name="story_id" required>
-        {% set current_story_id = chapter.story_id if chapter else (preselect_story_id|int if preselect_story_id else None) %}
+        {% set current_story_id = form_data.get('story_id', chapter.story_id if chapter else (preselect_story_id|int if preselect_story_id else None)) %}
         {% for s in all_stories %}
           <option value="{{ s.id }}" {{ "selected" if current_story_id == s.id }}>
             {{ s.title }}{% if s.series %} ({{ s.series.title }}){% endif %}
@@ -16,32 +18,32 @@
     </div>
     <div class="form-field">
       <label for="chapter_number">Chapter number</label>
-      <input type="number" id="chapter_number" name="chapter_number" value="{{ chapter.chapter_number if chapter else '' }}" required>
+      <input type="number" id="chapter_number" name="chapter_number" value="{{ form_data.get('chapter_number', chapter.chapter_number if chapter else (suggested_chapter_number if suggested_chapter_number is not none else '')) }}" required>
     </div>
     <div class="form-field">
       <label for="title">Title</label>
-      <input type="text" id="title" name="title" value="{{ chapter.title if chapter else '' }}">
+      <input type="text" id="title" name="title" value="{{ form_data.get('title', chapter.title if chapter else '') }}">
     </div>
     <div class="form-field">
       <label for="slug">Slug</label>
-      <input type="text" id="slug" name="slug" value="{{ chapter.slug if chapter else '' }}" placeholder="auto-suggested from title if left blank">
+      <input type="text" id="slug" name="slug" value="{{ form_data.get('slug', chapter.slug if chapter else '') }}" placeholder="auto-suggested from title if left blank">
     </div>
 
     <div style="display:flex; gap: var(--space-4); flex-wrap: wrap;">
       <div class="form-field" style="flex: 1 1 400px;">
         <label for="content">Content (markdown)</label>
-        <textarea id="content" name="content" oninput="document.getElementById('preview').innerHTML = window.__mdPreview ? window.__mdPreview(this.value) : this.value;">{{ chapter.content if chapter else '' }}</textarea>
+        <textarea id="content" name="content" oninput="document.getElementById('preview').innerHTML = window.__mdPreview ? window.__mdPreview(this.value) : this.value;">{{ form_data.get('content', chapter.content if chapter else '') }}</textarea>
       </div>
       <div class="form-field" style="flex: 1 1 400px;">
         <label>Preview</label>
         <div id="preview" style="border:1px solid var(--rule); border-radius:var(--radius); padding: var(--space-3); min-height:300px; background: var(--paper);">
-          {{ (chapter.content if chapter else "")|markdown|safe }}
+          {{ (form_data.get('content', chapter.content if chapter else ""))|markdown|safe }}
         </div>
       </div>
     </div>
 
     <div class="form-field">
-      <label><input type="checkbox" name="is_published" value="1" {{ "checked" if chapter and chapter.is_published }} style="width:auto; display:inline-block;"> Published</label>
+      <label><input type="checkbox" name="is_published" value="1" {{ "checked" if form_data.get('is_published', chapter and chapter.is_published) }} style="width:auto; display:inline-block;"> Published</label>
     </div>
     <button type="submit" class="btn">Save</button>
   </form>

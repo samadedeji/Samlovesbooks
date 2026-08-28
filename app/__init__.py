@@ -1,6 +1,11 @@
 import markdown as md
 from flask import Flask, render_template, url_for
 from flask_caching import Cache
+from flask_compress import Compress
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from .models import db
 from .utils import (
@@ -11,14 +16,26 @@ from .utils import (
 )
 
 cache = Cache()
+compress = Compress()
+csrf = CSRFProtect()
+limiter = Limiter(key_func=get_remote_address)
+migrate = Migrate()
 
 
 def create_app(config_object="config.DevConfig"):
     app = Flask(__name__)
     app.config.from_object(config_object)
+    if config_object == "config.ProdConfig":
+        from config import _production_secret_key
+
+        app.config["SECRET_KEY"] = _production_secret_key()
 
     db.init_app(app)
     cache.init_app(app)
+    compress.init_app(app)
+    csrf.init_app(app)
+    limiter.init_app(app)
+    migrate.init_app(app, db)
 
     # --- Blueprints ---
     from .routes.reader import reader_bp
@@ -75,5 +92,13 @@ def create_app(config_object="config.DevConfig"):
     @app.errorhandler(404)
     def not_found(_e):
         return render_template("404.html"), 404
+
+    @app.errorhandler(CSRFError)
+    def csrf_error(_e):
+        return render_template(
+            "404.html",
+            page_title="Form validation failed",
+            message="Your session expired or the form was tampered with — please try again,",
+        ), 400
 
     return app

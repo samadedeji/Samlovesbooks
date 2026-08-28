@@ -8,5 +8,6 @@ app = create_app(config_object)
 
 if __name__ == "__main__":
     with app.app_context():
+        # Real-data deployments must use `flask db upgrade`, never db.create_all(), once migrations exist.
         db.create_all()
     app.run(debug=True)
